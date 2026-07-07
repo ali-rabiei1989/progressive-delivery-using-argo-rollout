@@ -1,58 +1,177 @@
-# Enterprise Progressive Delivery Platform
+![Progressive Delivery Architecture and Workflow](assets/images/progressive-delivery-overview.png)
 
-## Overview
+# Progressive Delivery using Argo Rollouts
 
-This repository demonstrates a production-style Progressive Delivery platform on Kubernetes.
+A production-inspired lab demonstrating Progressive Delivery on Kubernetes using **Argo Rollouts**, **Argo CD**, **Prometheus Operator**, and **Traefik**.
 
-The project is designed to show how modern platform teams reduce release risk by combining GitOps, progressive delivery, observability, and automated rollback.
+The project shows how a canary deployment can be automatically promoted or aborted based on real application metrics collected by Prometheus.
 
-## Phase 1 Status: Platform Bootstrap
+---
 
-Completed platform components:
+## Features
 
-- Kubernetes
-- MetalLB
-- Traefik
-- Argo CD
-- Argo Rollouts
-- Prometheus
-- Grafana
+- GitOps deployment with Argo CD
+- Canary deployment using Argo Rollouts
+- Canary without Traffic Management
+- Prometheus-based rollout analysis
+- Automatic rollout abort on high error rate
+- Demo application written in Go
+- Configurable healthy/unhealthy application profiles
+- Custom Prometheus metrics
+- Request generator for traffic simulation
 
-## Platform Architecture
+---
 
-```mermaid
-flowchart TD
-    Client[Client / Browser] --> MetalLB[MetalLB External IP]
-    MetalLB --> Traefik[Traefik Ingress Controller]
+## Architecture
 
-    Traefik --> ArgoCD[Argo CD UI]
-    Traefik --> Grafana[Grafana UI]
-    Traefik --> Prometheus[Prometheus UI]
-
-    Prometheus --> ClusterMetrics[Kubernetes Metrics]
-    Prometheus --> FutureAppMetrics[Future Application Metrics]
-
-    ArgoCD --> GitOps[GitOps Applications]
-    GitOps --> Rollouts[Argo Rollouts]
+```text
+GitHub
+    │
+    ▼
+Argo CD
+    │
+    ▼
+Argo Rollouts
+    │
+    ▼
+Demo Application
+    │
+    ▼
+Prometheus
+    │
+    ▼
+AnalysisTemplate
+    │
+    ▼
+Promote / Abort
 ```
 
-## Phase 1 Design Summary
+---
 
-- MetalLB provides a fixed external IP for the Kubernetes cluster.
-- Traefik is the single ingress entry point.
-- Applications are exposed through host-based routing.
-- Argo CD will manage the application lifecycle through GitOps.
-- Argo Rollouts will manage progressive delivery strategies.
-- Prometheus and Grafana provide observability and release analysis data.
+## Progressive Delivery Workflow
 
-## Next Phase
+```text
+Deploy New Version
+        │
+        ▼
+Canary (50%)
+        │
+        ▼
+Pause (2 minutes)
+        │
+        ▼
+Generate Traffic
+        │
+        ▼
+Prometheus collects metrics
+        │
+        ▼
+AnalysisTemplate evaluates error rate
+        │
+   ┌────┴────┐
+   │         │
+Success    Failure
+   │         │
+   ▼         ▼
+Promote    Abort
+```
 
-Phase 2 will introduce:
+---
 
+## Repository Structure
+
+```text
+.
+├── apps/
+│   └── demo-api
+├── argo-cd/
+├── manifests/
+├── docs/
+│   ├── architecture/
+│   ├── application/
+│   ├── platform/
+│   ├── rollout/
+│   └── testing/
+└── scripts/
+```
+
+---
+
+## Technologies
+
+| Category | Technology |
+|-----------|------------|
+| Container Orchestration | Kubernetes |
+| GitOps | Argo CD |
+| Progressive Delivery | Argo Rollouts |
+| Ingress | Traefik |
+| Monitoring | kube-prometheus-stack |
+| Metrics | Prometheus |
+| Application | Go |
+| Container Registry | GitHub Container Registry |
+
+---
+
+## Monitoring
+
+The demo application exposes custom Prometheus metrics through `/metrics`.
+
+The rollout analysis evaluates the percentage of HTTP 5xx responses using the following query:
+
+```promql
+(
+  sum(rate(demo_api_http_requests_total{status=~"5.."}[2m]))
+/
+  sum(rate(demo_api_http_requests_total[2m]))
+) * 100
+```
+
+If the calculated error rate exceeds the configured threshold, Argo Rollouts automatically aborts the deployment.
+
+---
+
+## Demo Scenarios
+
+### Healthy Release
+
+- Deploy new version
+- Generate traffic
+- Prometheus analysis succeeds
+- Rollout is promoted
+
+### Unhealthy Release
+
+- Deploy new version
+- Generate traffic
+- Error rate exceeds threshold
+- Analysis fails
+- Rollout is automatically aborted
+
+---
+
+## Documentation
+
+Detailed documentation is available under the `docs/` directory.
+
+- Architecture
+- Platform setup
 - Demo application
-- Container image build pipeline
-- GitOps application manifests
-- Canary Rollout
-- Prometheus AnalysisTemplate
-- Automated rollback
-- Failure injection scenarios
+- Canary rollout
+- Prometheus analysis
+- Abort scenario
+- Traffic simulation
+
+---
+
+## Roadmap
+
+- [x] GitOps with Argo CD
+- [x] Canary deployment
+- [x] Prometheus analysis
+- [x] Automatic abort
+- [ ] Canary with Traffic Management
+- [ ] Notifications
+- [ ] Experiment Rollouts
+- [ ] Background Analysis
+
+---
