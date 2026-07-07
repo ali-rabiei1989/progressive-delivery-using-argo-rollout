@@ -1,0 +1,41 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: demo-api-rollout
+  namespace: demo-api
+spec:
+  strategy:
+    canary:
+      steps:
+      - setWeight: 50
+      - pause:
+          duration: 2m
+      - analysis:
+          templates:
+            - templateName: demo-api-error-rate
+  replicas: 5
+  selector:
+    matchLabels:
+      app: demo-api
+  template:
+    metadata:
+      labels:
+        app: demo-api
+    spec:
+      containers:
+      - name: demo-api
+        image: ghcr.io/ali-rabiei1989/progressive-delivery-demo-api:v2-arm64
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: http-alt
+        envFrom:
+        - configMapRef:
+            name: "unhealthy-app"

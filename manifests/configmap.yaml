@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: healthy-app
+  namespace: demo-api
+data:
+  APP_HEALTH: healthy
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unhealthy-app
+  namespace: demo-api
+data:
+  APP_HEALTH: unhealthy
+  APP_FAILURE_RATE: "70"
+

@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: demo-api-error-rate
+  namespace: demo-api
+spec:
+  metrics:
+    - name: error-rate
+      interval: 30s
+      count: 3
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://monitoring-kube-prometheus-prometheus.monitoring.svc:9090
+          query: |
+            (
+            sum(rate(demo_api_http_requests_total{status=~"5.."}[2m])) / sum(rate(demo_api_http_requests_total[2m]))
+            ) * 100
+      successCondition: result[0] < 30
