@@ -162,16 +162,3 @@ Detailed documentation is available under the `docs/` directory.
 - Traffic simulation
 
 ---
-
-## Roadmap
-
-- [x] GitOps with Argo CD
-- [x] Canary deployment
-- [x] Prometheus analysis
-- [x] Automatic abort
-- [ ] Canary with Traffic Management
-- [ ] Notifications
-- [ ] Experiment Rollouts
-- [ ] Background Analysis
-
----
