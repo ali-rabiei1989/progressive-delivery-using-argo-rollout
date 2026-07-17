@@ -1,8 +1,8 @@
 ![Progressive Delivery Architecture and Workflow](assets/images/progressive-delivery-overview.png)
 
-# Progressive Delivery using Argo Rollouts
+# Automating Canary Feedback Loop
 
-A production-inspired lab demonstrating Progressive Delivery on Kubernetes using **Argo Rollouts**, **Argo CD**, **Prometheus Operator**, and **Traefik**.
+A production-inspired lab demonstrating an automated canary feedback loop on Kubernetes using **Argo Rollouts**, **Argo CD**, **Prometheus Operator**, and **Traefik**.
 
 The project shows how a canary deployment can be automatically promoted or aborted based on real application metrics collected by Prometheus.
 
